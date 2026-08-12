@@ -4,12 +4,12 @@
    (Xem hướng dẫn đầy đủ trong README.md)
 ========================================================= */
 const firebaseConfig = {
-  apiKey: "DÁN_API_KEY_VÀO_ĐÂY",
-  authDomain: "TEN-DU-AN.firebaseapp.com",
-  projectId: "TEN-DU-AN",
-  storageBucket: "TEN-DU-AN.appspot.com",
-  messagingSenderId: "SỐ_ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyDYvwIPea1bMCqpaBa20sol6RB8nQga_sg",
+  authDomain: "trang-bio-cua-toi.firebaseapp.com",
+  projectId: "trang-bio-cua-toi",
+  storageBucket: "trang-bio-cua-toi.firebasestorage.app",
+  messagingSenderId: "477154277734",
+  appId: "1:477154277734:web:691c6783141a4ec27db0a7"
 };
 
 firebase.initializeApp(firebaseConfig);

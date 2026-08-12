@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chỉnh sửa — Trang Bio Của Tôi</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== MÀN HÌNH ĐĂNG NHẬP (chặn người lạ vào trang sửa) ===== -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>Đăng nhập</h2>
+    <p>Chỉ chủ trang mới chỉnh sửa được nội dung.</p>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Mật khẩu">
+    <button class="tbtn primary" id="btnLogin">Đăng nhập</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ===== ỨNG DỤNG CHỈNH SỬA (ẩn cho tới khi đăng nhập xong) ===== -->
+<div id="app" class="app-hidden">
+
+  <header class="toolbar" id="toolbar">
+    <div class="toolbar-brand">
+      <span class="toolbar-dot"></span>
+      <span class="toolbar-label">TRÌNH CHỈNH SỬA</span>
+    </div>
+
+    <div class="toolbar-group">
+      <button class="tbtn" id="btnBg" title="Đổi nền trang">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 15l4-4 3 3 5-5 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Nền trang
+      </button>
+      <button class="tbtn" id="btnAddLink" title="Thêm liên kết mới">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Thêm liên kết
+      </button>
+      <button class="tbtn danger" id="btnReset" title="Xoá hết, làm lại từ đầu">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-8 0l1 12a1 1 0 001 1h6a1 1 0 001-1l1-12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Làm lại
+      </button>
+    </div>
+
+    <span class="save-status" id="saveStatus" style="font-family:var(--font-mono);font-size:11px;color:var(--slate);margin-right:4px;"></span>
+    <a class="tbtn" href="index.html" target="_blank" rel="noopener">Xem trang chính ↗</a>
+    <button class="tbtn primary" id="btnLogout">Đăng xuất</button>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <div class="bg-panel" id="bgPanel">
+      <div class="bg-panel-row">
+        <span class="bg-panel-label">Màu nền</span>
+        <input type="color" id="bgColorInput" value="#1b1730">
+      </div>
+      <div class="bg-panel-row">
+        <span class="bg-panel-label">Ảnh nền</span>
+        <button class="tbtn small" id="btnUploadBg">Tải ảnh từ máy</button>
+        <button class="tbtn small ghost" id="btnClearBg">Bỏ ảnh</button>
+      </div>
+      <input type="file" id="bgFileInput" accept="image/*" hidden>
+    </div>
+
+    <section class="page-card" id="pageCard">
+
+      <div class="cover" id="coverImg">
+        <div class="cover-edit-hint" id="coverEditHint">Bấm để đổi ảnh bìa</div>
+      </div>
+
+      <div class="identity">
+        <div class="avatar-wrap">
+          <div class="avatar" id="avatar">
+            <span class="avatar-fallback" id="avatarFallback">＋</span>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" hidden>
+        </div>
+
+        <h1 class="brand-name" id="brandName" contenteditable="true" data-placeholder="Tên thương hiệu / Tên bạn">Tên Thương Hiệu</h1>
+        <p class="brand-desc" id="brandDesc" contenteditable="true" data-placeholder="Viết một dòng mô tả ngắn về bạn hoặc thương hiệu ở đây...">Mô tả ngắn gọn về bạn hoặc thương hiệu xuất hiện ở đây.</p>
+      </div>
+
+      <div class="links" id="linksContainer"></div>
+
+      <p class="empty-state" id="emptyState">Chưa có liên kết nào — bấm "Thêm liên kết" ở thanh công cụ phía trên.</p>
+
+      <footer class="page-footer">
+        <span id="footerName">Tên Thương Hiệu</span> · trang chỉnh sửa
+      </footer>
+    </section>
+  </main>
+</div>
+
+<template id="linkCardTemplate">
+  <article class="link-card" style="--card-color: #6C5CE0;">
+    <button class="link-remove" title="Xoá liên kết">✕</button>
+
+    <div class="link-media" title="Bấm để đổi ảnh minh hoạ">
+      <span class="link-media-fallback">🖼️</span>
+      <input type="file" class="link-media-input" accept="image/*" hidden>
+    </div>
+
+    <div class="link-body">
+      <div class="link-title" contenteditable="true" data-placeholder="Tên liên kết (VD: Instagram)">Tên liên kết</div>
+      <div class="link-desc" contenteditable="true" data-placeholder="Ghi chú thêm (không bắt buộc)">Ghi chú thêm cho liên kết này</div>
+      <input class="link-url" type="text" placeholder="Dán URL vào đây, VD: https://instagram.com/...">
+    </div>
+
+    <label class="link-color" title="Đổi màu hộp">
+      <input type="color" class="link-color-input" value="#6C5CE0">
+    </label>
+  </article>
+</template>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="common.js"></script>
+<script src="edit.js"></script>
+</body>
+</html>

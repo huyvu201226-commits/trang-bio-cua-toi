@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trang Bio Của Tôi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="mode-preview">
+
+<!-- ===== TRANG NGƯỜI XEM (chỉ đọc — không có thanh công cụ chỉnh sửa) ===== -->
+<main class="stage" id="stage">
+
+  <section class="page-card" id="pageCard">
+    <div class="cover" id="coverImg"></div>
+
+    <div class="identity">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatar">
+          <span class="avatar-fallback" id="avatarFallback">＋</span>
+        </div>
+      </div>
+      <h1 class="brand-name" id="brandName">Tên Thương Hiệu</h1>
+      <p class="brand-desc" id="brandDesc">Mô tả ngắn gọn về bạn hoặc thương hiệu xuất hiện ở đây.</p>
+    </div>
+
+    <div class="links" id="linksContainer">
+      <p class="load-hint" id="loadHint">Đang tải…</p>
+    </div>
+
+    <footer class="page-footer">
+      <span id="footerName">Tên Thương Hiệu</span> · trang người dùng
+    </footer>
+  </section>
+</main>
+
+<template id="linkCardTemplate">
+  <a class="link-card" target="_blank" rel="noopener noreferrer" style="--card-color:#6C5CE0;">
+    <div class="link-media"><span class="link-media-fallback">🖼️</span></div>
+    <div class="link-body">
+      <div class="link-title"></div>
+      <div class="link-desc"></div>
+    </div>
+  </a>
+</template>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="common.js"></script>
+<script src="view.js"></script>
+</body>
+</html>

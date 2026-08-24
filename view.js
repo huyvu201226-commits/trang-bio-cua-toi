@@ -3,6 +3,7 @@
 
   const $ = (id) => document.getElementById(id);
   const stage           = $("stage");
+  const pageCard        = $("pageCard");
   const coverImg        = $("coverImg");
   const avatar          = $("avatar");
   const brandName       = $("brandName");
@@ -47,16 +48,28 @@
     state.links.forEach((data) => linksContainer.appendChild(buildLinkCard(data)));
   }
 
+  /* Hiện khung xương "đang tải" (kiểu Facebook) cho tới khi có dữ liệu
+     lần đầu, sau đó chuyển mượt sang nội dung thật. */
+  let firstLoadDone = false;
+  function markLoaded() {
+    if (firstLoadDone) return;
+    firstLoadDone = true;
+    // Đợi 1 khung hình để trình duyệt kịp vẽ nội dung trước khi mờ dần khung xương
+    requestAnimationFrame(() => pageCard.classList.add("is-loaded"));
+  }
+
   /* Lắng nghe dữ liệu theo thời gian thực — hễ trang sửa lưu thay đổi,
      trang chính sẽ tự cập nhật ngay mà không cần tải lại trang. */
   DOC_REF.onSnapshot(
     (snap) => {
       const state = { ...defaultState(), ...(snap.exists ? snap.data() : {}) };
       render(state);
+      markLoaded();
     },
     (err) => {
       console.error(err);
       loadHint.textContent = "Không tải được dữ liệu. Kiểm tra lại cấu hình Firebase.";
+      markLoaded();
     }
   );
 })();

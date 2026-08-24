@@ -69,29 +69,45 @@
 
     <section class="page-card" id="pageCard">
 
-      <div class="cover" id="coverImg">
-        <div class="cover-edit-hint" id="coverEditHint">Bấm để đổi ảnh bìa</div>
+      <!-- Khung xương "đang tải" — hiển thị trong lúc chờ dữ liệu đã lưu -->
+      <div class="skeleton-wrap" id="skeletonWrap" aria-hidden="true">
+        <div class="skeleton skeleton-cover"></div>
+        <div class="skeleton-identity">
+          <div class="skeleton skeleton-avatar"></div>
+          <div class="skeleton skeleton-line skeleton-line-title"></div>
+          <div class="skeleton skeleton-line skeleton-line-desc"></div>
+        </div>
+        <div class="skeleton-links">
+          <div class="skeleton skeleton-link"></div>
+          <div class="skeleton skeleton-link"></div>
+        </div>
       </div>
 
-      <div class="identity">
-        <div class="avatar-wrap">
-          <div class="avatar" id="avatar">
-            <span class="avatar-fallback" id="avatarFallback">＋</span>
-          </div>
-          <input type="file" id="avatarFileInput" accept="image/*" hidden>
+      <div class="real-content" id="realContent">
+        <div class="cover" id="coverImg">
+          <div class="cover-edit-hint" id="coverEditHint">Bấm để đổi ảnh bìa</div>
         </div>
 
-        <h1 class="brand-name" id="brandName" contenteditable="true" data-placeholder="Tên thương hiệu / Tên bạn">Tên Thương Hiệu</h1>
-        <p class="brand-desc" id="brandDesc" contenteditable="true" data-placeholder="Viết một dòng mô tả ngắn về bạn hoặc thương hiệu ở đây...">Mô tả ngắn gọn về bạn hoặc thương hiệu xuất hiện ở đây.</p>
+        <div class="identity">
+          <div class="avatar-wrap">
+            <div class="avatar" id="avatar">
+              <span class="avatar-fallback" id="avatarFallback">＋</span>
+            </div>
+            <input type="file" id="avatarFileInput" accept="image/*" hidden>
+          </div>
+
+          <h1 class="brand-name" id="brandName" contenteditable="true" data-placeholder="Tên thương hiệu / Tên bạn">Tên Thương Hiệu</h1>
+          <p class="brand-desc" id="brandDesc" contenteditable="true" data-placeholder="Viết một dòng mô tả ngắn về bạn hoặc thương hiệu ở đây...">Mô tả ngắn gọn về bạn hoặc thương hiệu xuất hiện ở đây.</p>
+        </div>
+
+        <div class="links" id="linksContainer"></div>
+
+        <p class="empty-state" id="emptyState">Chưa có liên kết nào — bấm "Thêm liên kết" ở thanh công cụ phía trên.</p>
+
+        <footer class="page-footer">
+          <span id="footerName">Tên Thương Hiệu</span> · trang chỉnh sửa
+        </footer>
       </div>
-
-      <div class="links" id="linksContainer"></div>
-
-      <p class="empty-state" id="emptyState">Chưa có liên kết nào — bấm "Thêm liên kết" ở thanh công cụ phía trên.</p>
-
-      <footer class="page-footer">
-        <span id="footerName">Tên Thương Hiệu</span> · trang chỉnh sửa
-      </footer>
     </section>
   </main>
 </div>
@@ -99,6 +115,10 @@
 <template id="linkCardTemplate">
   <article class="link-card" style="--card-color: #6C5CE0;">
     <button class="link-remove" title="Xoá liên kết">✕</button>
+
+    <span class="link-drag-handle" title="Giữ và kéo để sắp xếp lại thứ tự">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.6" fill="currentColor"/><circle cx="9" cy="12" r="1.6" fill="currentColor"/><circle cx="9" cy="18" r="1.6" fill="currentColor"/><circle cx="15" cy="6" r="1.6" fill="currentColor"/><circle cx="15" cy="12" r="1.6" fill="currentColor"/><circle cx="15" cy="18" r="1.6" fill="currentColor"/></svg>
+    </span>
 
     <div class="link-media" title="Bấm để đổi ảnh minh hoạ">
       <span class="link-media-fallback">🖼️</span>

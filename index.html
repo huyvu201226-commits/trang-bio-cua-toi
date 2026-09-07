@@ -12,6 +12,7 @@
 
 <!-- ===== TRANG NGƯỜI XEM (chỉ đọc — không có thanh công cụ chỉnh sửa) ===== -->
 <main class="stage" id="stage">
+  <video class="stage-bg-video" id="stageBgVideo" muted autoplay loop playsinline></video>
 
   <section class="page-card" id="pageCard">
 
@@ -55,6 +56,11 @@
     </div>
   </section>
 </main>
+
+<!-- Chân trang phủ lớp mờ xám, nằm đè lên nền trang (ngoài khung thẻ) -->
+<footer class="site-footer" id="siteFooter">
+  <p class="site-footer-text" id="siteFooterText"></p>
+</footer>
 
 <template id="linkCardTemplate">
   <a class="link-card" target="_blank" rel="noopener noreferrer" style="--card-color:#6C5CE0;">

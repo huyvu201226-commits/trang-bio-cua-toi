@@ -86,7 +86,7 @@ button{font-family:inherit;}
   min-height:calc(100vh - 60px);
   min-height:calc(100dvh - 60px);
   display:flex; justify-content:center;
-  padding:clamp(32px, 8vw, 56px) clamp(12px, 4vw, 20px) clamp(50px, 10vw, 90px);
+  padding:clamp(32px, 8vw, 56px) clamp(12px, 4vw, 20px) clamp(74px, 14vw, 120px);
   background-image: var(--stage-bg-image, none);
   background-color: var(--stage-bg-color, var(--ink));
   background-size:cover; background-position:center;
@@ -98,41 +98,69 @@ button{font-family:inherit;}
 }
 .stage::before{
   content:"";
-  position:absolute; inset:0;
+  position:absolute; inset:0; z-index:1;
   background:linear-gradient(180deg, rgba(20,18,31,.35), rgba(20,18,31,.75) 60%, var(--ink) 100%);
   pointer-events:none;
 }
 body.mode-preview .stage::before{ background:linear-gradient(180deg, rgba(20,18,31,.15), rgba(20,18,31,.55) 70%, var(--ink) 100%); }
 
-.bg-panel{
+/* ---- Hoạt ảnh nền (video) — thay cho ảnh/màu tĩnh khi được bật ---- */
+.stage-bg-video{
+  position:fixed; inset:0; z-index:0;
+  width:100%; height:100%;
+  object-fit:cover; object-position:center;
+  display:none;
+  pointer-events:none;
+}
+.stage.bg-video-active .stage-bg-video{display:block;}
+.stage.bg-video-active{background-image:none !important;}
+
+.bg-panel, .size-panel{
   position:absolute; top:20px; left:50%; transform:translateX(-50%);
   z-index:20; display:none; flex-direction:column; gap:10px;
   background:rgba(20,18,31,.94); border:1px solid rgba(247,245,255,.14);
   padding:14px 16px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,.4);
+  width:min(320px, calc(100vw - 32px));
 }
-.bg-panel.open{display:flex;}
+.bg-panel.open, .size-panel.open{display:flex;}
 .bg-panel-row{display:flex;align-items:center;gap:10px;}
-.bg-panel-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--slate);width:70px;}
+.bg-panel-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--slate);width:70px;flex:none;}
 .bg-panel-row input[type="color"]{
   width:34px;height:34px;border-radius:8px;border:1px solid rgba(247,245,255,.2); background:none; cursor:pointer;
 }
+.bg-panel-input{
+  flex:1; min-width:0; padding:8px 10px; font-size:12.5px;
+  border-radius:8px; border:1px solid rgba(247,245,255,.16);
+  background:rgba(20,18,31,.6); color:var(--paper); font-family:var(--font-mono);
+}
+.bg-panel-input::placeholder{color:var(--slate);}
+.bg-panel-divider{height:1px; background:rgba(247,245,255,.1); margin:2px 0;}
+.bg-panel-hint{
+  margin:0; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.04em;
+  color:var(--gold); text-align:center;
+}
+.size-panel-value{
+  font-family:var(--font-mono); font-size:12px; color:var(--paper); width:44px; text-align:right; flex:none;
+}
+.size-panel input[type="range"]{ flex:1; accent-color:var(--violet); }
 
 /* =========================================================
    PAGE CARD — the phone-card style "trang người dùng"
 ========================================================= */
 .page-card{
-  position:relative; z-index:1;
-  width:100%; max-width:min(440px, 100%);
+  position:relative; z-index:2;
+  width:100%; max-width:min(calc(440px * var(--card-scale, 1)), 100%);
   background:linear-gradient(180deg, rgba(247,245,255,.06), rgba(247,245,255,.02));
   border:1px solid rgba(247,245,255,.12);
   border-radius:var(--card-radius);
   overflow:hidden;
   box-shadow:0 30px 70px rgba(0,0,0,.45);
+  transition:max-width .18s ease;
 }
 
 .cover{
   position:relative;
-  height:clamp(96px, 22vw, 132px);
+  height:calc(var(--card-scale, 1) * clamp(96px, 22vw, 132px));
   background: var(--cover-image, linear-gradient(135deg, var(--violet), #4834b0));
   background-size:cover; background-position:center;
   cursor:pointer;
@@ -145,10 +173,10 @@ body.mode-preview .cover{cursor:default;}
 }
 .cover:hover .cover-edit-hint{ background:rgba(20,18,31,.45); color:var(--paper); }
 
-.identity{ text-align:center; padding:0 clamp(16px, 5vw, 26px); margin-top:-46px; position:relative; }
+.identity{ text-align:center; padding:0 clamp(16px, 5vw, 26px); margin-top:calc(var(--card-scale, 1) * -46px); position:relative; }
 .avatar-wrap{display:flex; justify-content:center;}
 .avatar{
-  width:clamp(74px, 22vw, 92px);height:clamp(74px, 22vw, 92px);border-radius:50%;
+  width:calc(var(--card-scale, 1) * clamp(74px, 22vw, 92px));height:calc(var(--card-scale, 1) * clamp(74px, 22vw, 92px));border-radius:50%;
   background: var(--avatar-image, linear-gradient(145deg, var(--gold), var(--coral)));
   background-size:cover; background-position:center;
   border:4px solid var(--ink);
@@ -164,21 +192,22 @@ body.mode-preview .avatar:hover{transform:none; box-shadow:0 0 0 2px rgba(247,24
 
 .brand-name{
   font-family:var(--font-display); font-weight:700; font-style:italic;
-  font-size:clamp(20px, 5.5vw, 26px); margin:16px 0 4px; line-height:1.15;
+  font-size:calc(var(--card-scale, 1) * clamp(20px, 5.5vw, 26px)); margin:16px 0 4px; line-height:1.15;
 }
 .brand-desc{
-  font-size:clamp(13px, 3.4vw, 14px); color:var(--slate); line-height:1.5; margin:0 auto; max-width:320px;
+  font-size:calc(var(--card-scale, 1) * clamp(13px, 3.4vw, 14px)); color:var(--slate); line-height:1.5; margin:0 auto;
+  max-width:calc(var(--card-scale, 1) * 320px);
 }
 
 /* =========================================================
    LINKS — the editable rounded rectangle boxes
 ========================================================= */
-.links{ padding:24px 22px 6px; display:flex; flex-direction:column; gap:14px; }
+.links{ padding:24px 22px 6px; display:flex; flex-direction:column; gap:calc(var(--card-scale, 1) * 14px); }
 
 .link-card{
   position:relative;
-  display:flex; align-items:center; gap:14px;
-  padding:14px 16px;
+  display:flex; align-items:center; gap:calc(var(--card-scale, 1) * 14px);
+  padding:calc(var(--card-scale, 1) * 14px) calc(var(--card-scale, 1) * 16px);
   border-radius:var(--link-radius);
   background: color-mix(in srgb, var(--card-color) 22%, var(--ink) 78%);
   border:1px solid color-mix(in srgb, var(--card-color) 45%, transparent);
@@ -222,7 +251,7 @@ body.mode-preview .link-drag-handle{display:none;}
 }
 
 .link-media{
-  flex:none; width:52px;height:52px;border-radius:14px;
+  flex:none; width:calc(var(--card-scale, 1) * 52px);height:calc(var(--card-scale, 1) * 52px);border-radius:14px;
   background: var(--media-image, rgba(247,245,255,.08));
   background-size:cover; background-position:center;
   display:flex; align-items:center; justify-content:center;
@@ -234,8 +263,8 @@ body.mode-preview .link-media{cursor:default; border-style:solid; border-color:t
 body.mode-preview .link-media:not(.has-image){display:none;}
 
 .link-body{flex:1; min-width:0; position:relative;}
-.link-title{font-weight:600; font-size:15.5px; margin-bottom:2px;}
-.link-desc{font-size:12.5px; color:var(--slate); line-height:1.4;}
+.link-title{font-weight:600; font-size:calc(var(--card-scale, 1) * 15.5px); margin-bottom:2px;}
+.link-desc{font-size:calc(var(--card-scale, 1) * 12.5px); color:var(--slate); line-height:1.4;}
 .link-url{
   width:100%; margin-top:8px; padding:8px 10px; font-size:12.5px;
   border-radius:8px; border:1px solid rgba(247,245,255,.14);
@@ -284,7 +313,7 @@ body.mode-preview [contenteditable]{ cursor:default; }
   .link-media{width:44px;height:44px;}
 }
 
-/* Điện thoại (≤480px) */
+/* Điện thoại (≤480px) — luôn nằm gọn 100% chiều rộng dù kích cỡ khung đặt cao */
 @media (max-width:480px){
   .toolbar{gap:10px; padding:10px 14px;}
   .toolbar-label{display:none;}
@@ -292,22 +321,22 @@ body.mode-preview [contenteditable]{ cursor:default; }
   .page-card{max-width:100%; border-radius:20px;}
 }
 
-/* Máy tính bảng (481px–900px) */
+/* Máy tính bảng (481px–900px) — mốc nền nhân theo hệ số kích cỡ khung */
 @media (min-width:481px) and (max-width:900px){
-  .page-card{max-width:480px;}
+  .page-card{max-width:min(calc(480px * var(--card-scale, 1)), 100%);}
 }
 
 /* Màn hình lớn / desktop (≥901px) */
 @media (min-width:901px){
   .stage{padding-top:72px;}
   body.mode-preview .stage{padding-top:80px;}
-  .page-card{max-width:460px;}
+  .page-card{max-width:min(calc(460px * var(--card-scale, 1)), 100%);}
   .link-card:hover{transform:translateY(-4px) rotate(-.3deg) scale(1.01);}
 }
 
 /* Màn hình rất rộng — tránh trang bị kéo dài trống trải */
 @media (min-width:1400px){
-  .page-card{max-width:480px;}
+  .page-card{max-width:min(calc(480px * var(--card-scale, 1)), 100%);}
 }
 
 /* Chiều ngang lớn hơn chiều dọc trên di động (xoay ngang) */
@@ -393,25 +422,57 @@ body.mode-preview [contenteditable]{ cursor:default; }
   60%,100%{transform:translateX(100%);}
 }
 
-.skeleton-cover{height:clamp(96px, 22vw, 132px);}
+.skeleton-cover{height:calc(var(--card-scale, 1) * clamp(96px, 22vw, 132px));}
 .skeleton-identity{
-  padding:0 clamp(16px, 5vw, 26px); margin-top:-46px; position:relative;
+  padding:0 clamp(16px, 5vw, 26px); margin-top:calc(var(--card-scale, 1) * -46px); position:relative;
   display:flex; flex-direction:column; align-items:center; gap:12px;
 }
 .skeleton-avatar{
-  width:clamp(74px, 22vw, 92px); height:clamp(74px, 22vw, 92px); border-radius:50%;
+  width:calc(var(--card-scale, 1) * clamp(74px, 22vw, 92px)); height:calc(var(--card-scale, 1) * clamp(74px, 22vw, 92px)); border-radius:50%;
   border:4px solid var(--ink);
 }
 .skeleton-line{height:12px; border-radius:8px;}
 .skeleton-line-title{width:52%; height:20px; margin-top:6px;}
 .skeleton-line-desc{width:74%;}
 .skeleton-line-desc-2{width:46%;}
-.skeleton-links{padding:24px 22px 6px; display:flex; flex-direction:column; gap:14px;}
-.skeleton-link{height:80px; border-radius:var(--link-radius);}
+.skeleton-links{padding:24px 22px 6px; display:flex; flex-direction:column; gap:calc(var(--card-scale, 1) * 14px);}
+.skeleton-link{height:calc(var(--card-scale, 1) * 80px); border-radius:var(--link-radius);}
 .skeleton-footer{height:11px; width:120px; border-radius:6px; margin:20px auto 26px;}
 
 @media (prefers-reduced-motion:reduce){
   .skeleton, .skeleton::after{animation:none;}
+}
+
+/* =========================================================
+   SITE FOOTER — chân trang phủ lớp mờ xám, nằm đè lên NỀN TRANG
+   (không phải chân trang bên trong khung thẻ), văn bản tuỳ chỉnh
+========================================================= */
+.site-footer{
+  position:fixed; left:0; right:0; bottom:0; z-index:15;
+  display:flex; align-items:center; justify-content:center;
+  padding:12px 20px;
+  background:rgba(90,90,102,.32);
+  backdrop-filter:blur(14px) saturate(1.1);
+  -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  border-top:1px solid rgba(247,245,255,.1);
+  box-shadow:0 -10px 30px rgba(0,0,0,.2);
+  pointer-events:none;
+}
+.site-footer-text{
+  margin:0; max-width:min(720px, 92vw);
+  font-family:var(--font-mono); font-size:12px; letter-spacing:.02em;
+  color:var(--paper); opacity:.9; text-align:center;
+  line-height:1.4;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  pointer-events:auto;
+}
+[contenteditable="true"].site-footer-text{
+  cursor:text; white-space:normal; -webkit-line-clamp:2; display:-webkit-box; -webkit-box-orient:vertical;
+}
+.site-footer-text:empty:before{content:attr(data-placeholder); opacity:.55;}
+@media (max-width:480px){
+  .site-footer{padding:10px 14px;}
+  .site-footer-text{font-size:11px;}
 }
 
 /* Accessibility: focus visibility */

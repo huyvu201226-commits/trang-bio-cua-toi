@@ -14,12 +14,22 @@
 
   const stage           = $("stage");
   const pageCard         = $("pageCard");
+  const stageBgVideo     = $("stageBgVideo");
   const bgPanel          = $("bgPanel");
+  const bgActiveHint     = $("bgActiveHint");
   const bgColorInput     = $("bgColorInput");
   const bgFileInput      = $("bgFileInput");
+  const bgVideoInput     = $("bgVideoInput");
   const btnBg            = $("btnBg");
   const btnUploadBg      = $("btnUploadBg");
   const btnClearBg       = $("btnClearBg");
+  const btnUseVideo      = $("btnUseVideo");
+  const btnClearVideo    = $("btnClearVideo");
+  const sizePanel        = $("sizePanel");
+  const btnSize          = $("btnSize");
+  const cardScaleInput   = $("cardScaleInput");
+  const cardScaleValue   = $("cardScaleValue");
+  const btnResetScale    = $("btnResetScale");
   const btnAddLink       = $("btnAddLink");
   const btnReset         = $("btnReset");
   const coverImg         = $("coverImg");
@@ -28,6 +38,7 @@
   const brandName        = $("brandName");
   const brandDesc        = $("brandDesc");
   const footerName       = $("footerName");
+  const siteFooterText   = $("siteFooterText");
   const linksContainer   = $("linksContainer");
   const emptyState       = $("emptyState");
   const linkCardTemplate = $("linkCardTemplate");
@@ -212,26 +223,84 @@
     }
   }
 
-  /* ---------- Thanh công cụ ---------- */
-  btnBg.addEventListener("click", () => bgPanel.classList.toggle("open"));
+  /* ---------- Thanh công cụ: nền trang (màu / ảnh / hoạt ảnh) ---------- */
+  const BG_TYPE_LABELS = { color: "Màu nền", image: "Ảnh nền tuỳ chỉnh", video: "Hoạt ảnh (video)" };
+
+  function refreshBgHint() {
+    const type = state.stageBgType || "color";
+    bgActiveHint.textContent = "Đang dùng: " + (BG_TYPE_LABELS[type] || BG_TYPE_LABELS.color);
+  }
+
+  function updateStageBg() {
+    applyStageBackground(stage, bgColorInput, state, stageBgVideo);
+    refreshBgHint();
+    saveState();
+  }
+
+  btnBg.addEventListener("click", () => {
+    bgPanel.classList.toggle("open");
+    sizePanel.classList.remove("open");
+  });
+  btnSize.addEventListener("click", () => {
+    sizePanel.classList.toggle("open");
+    bgPanel.classList.remove("open");
+  });
 
   bgColorInput.addEventListener("input", () => {
     state.stageBgColor = bgColorInput.value;
-    applyStageBackground(stage, bgColorInput, state);
-    saveState();
+    state.stageBgType = "color";
+    updateStageBg();
   });
 
   btnUploadBg.addEventListener("click", () => bgFileInput.click());
   bgFileInput.addEventListener("change", (e) => {
     fileToBase64(e.target.files[0], (base64) => {
       state.stageBgImage = base64;
-      applyStageBackground(stage, bgColorInput, state);
-      saveState();
+      state.stageBgType = "image";
+      updateStageBg();
     });
   });
   btnClearBg.addEventListener("click", () => {
     state.stageBgImage = null;
-    applyStageBackground(stage, bgColorInput, state);
+    if (state.stageBgType === "image") state.stageBgType = "color";
+    updateStageBg();
+  });
+
+  btnUseVideo.addEventListener("click", () => {
+    const url = bgVideoInput.value.trim();
+    if (!url) { bgVideoInput.focus(); return; }
+    state.stageBgVideo = url;
+    state.stageBgType = "video";
+    updateStageBg();
+  });
+  btnClearVideo.addEventListener("click", () => {
+    if (state.stageBgType === "video") state.stageBgType = "color";
+    updateStageBg();
+  });
+
+  /* ---------- Thanh công cụ: kích cỡ khung trang ----------
+     Một hệ số duy nhất (--card-scale) điều khiển mọi kích thước bên trong
+     (ảnh bìa, avatar, chữ, hộp liên kết) nên khung luôn co giãn đồng bộ. */
+  function refreshScaleLabel() {
+    cardScaleValue.textContent = Math.round((state.cardScale || 1) * 100) + "%";
+  }
+  cardScaleInput.addEventListener("input", () => {
+    state.cardScale = parseFloat(cardScaleInput.value);
+    applyCardScale(stage, state);
+    refreshScaleLabel();
+    saveState();
+  });
+  btnResetScale.addEventListener("click", () => {
+    state.cardScale = 1;
+    cardScaleInput.value = "1";
+    applyCardScale(stage, state);
+    refreshScaleLabel();
+    saveState();
+  });
+
+  /* ---------- Chân trang phủ mờ (văn bản tuỳ chỉnh) ---------- */
+  siteFooterText.addEventListener("input", () => {
+    state.footerText = siteFooterText.textContent;
     saveState();
   });
 
@@ -289,7 +358,13 @@
     footerName.textContent = state.brandName || "Tên Thương Hiệu";
     applyAvatar(avatar, state);
     applyCover(coverImg, state);
-    applyStageBackground(stage, bgColorInput, state);
+    applyStageBackground(stage, bgColorInput, state, stageBgVideo);
+    applyCardScale(stage, state);
+    applyFooterText(siteFooterText, state);
+    bgVideoInput.value = state.stageBgVideo || "";
+    cardScaleInput.value = state.cardScale || 1;
+    refreshBgHint();
+    refreshScaleLabel();
     renderLinks();
   }
 

@@ -51,3 +51,14 @@ Từ giờ, mỗi lần muốn đổi nội dung, bạn mở link `edit.html`, �
 
 ## Lưu ý về hình ảnh
 Ảnh bạn tải lên (avatar, ảnh bìa, ảnh nền, ảnh liên kết) được lưu thẳng vào dữ liệu (base64), nên nếu dùng nhiều ảnh lớn, dữ liệu sẽ nặng hơn. Nếu sau này thấy chậm, nên nén ảnh nhỏ lại trước khi tải lên.
+
+## Các tính năng mới
+
+**1. Chân trang phủ mờ xám (đè lên nền trang)**
+Ở cuối trang chỉnh sửa (`edit.html`) có một dòng chữ nằm cố định phía dưới cùng màn hình, nền là lớp kính mờ xám (không phải chân trang bên trong khung thẻ trắng). Bấm thẳng vào dòng chữ đó để gõ nội dung tuỳ ý (bản quyền, liên hệ, khẩu hiệu...). Nội dung này lưu vào `footerText` và hiển thị y hệt cho mọi người xem `index.html`.
+
+**2. Nền trang: màu / ảnh tuỳ chỉnh / hoạt ảnh (video)**
+Ở nút **"Nền trang"** trên thanh công cụ của `edit.html`, ngoài chọn màu và tải ảnh như cũ, giờ có thêm mục **"Hoạt ảnh"**: dán link video `.mp4` bất kỳ rồi bấm **"Dùng hoạt ảnh này"** để video đó tự động phát lặp làm nền động (có sẵn 1 link hoạt ảnh mẫu tại `https://huyvu201226-commits.github.io/N-n-ng/video.mp4`, bạn có thể thay bằng link khác). Chỉ 1 kiểu nền hiển thị tại một thời điểm — dòng chữ nhỏ trong bảng cho biết đang dùng kiểu nào.
+
+**3. Kích cỡ khung trang tuỳ chỉnh**
+Nút **"Kích cỡ khung"** trên thanh công cụ mở thanh trượt để phóng to/thu nhỏ toàn bộ khung thẻ (85%–135%). Mọi phần bên trong — ảnh bìa, avatar, chữ, hộp liên kết — đều co giãn theo cùng một hệ số nên luôn cân đối, không bị vỡ giao diện dù chỉnh lớn hay nhỏ. Trên điện thoại rất hẹp, khung vẫn tự động co về vừa màn hình để không bị tràn.

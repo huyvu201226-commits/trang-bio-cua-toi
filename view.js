@@ -4,11 +4,13 @@
   const $ = (id) => document.getElementById(id);
   const stage           = $("stage");
   const pageCard        = $("pageCard");
+  const stageBgVideo    = $("stageBgVideo");
   const coverImg        = $("coverImg");
   const avatar          = $("avatar");
   const brandName       = $("brandName");
   const brandDesc       = $("brandDesc");
   const footerName      = $("footerName");
+  const siteFooterText  = $("siteFooterText");
   const linksContainer  = $("linksContainer");
   const loadHint        = $("loadHint");
   const linkCardTemplate = $("linkCardTemplate");
@@ -35,7 +37,9 @@
     footerName.textContent = state.brandName || "Tên Thương Hiệu";
     applyAvatar(avatar, state);
     applyCover(coverImg, state);
-    applyStageBackground(stage, null, state);
+    applyStageBackground(stage, null, state, stageBgVideo);
+    applyCardScale(stage, state);
+    applyFooterText(siteFooterText, state);
 
     linksContainer.innerHTML = "";
     if (!state.links || state.links.length === 0) {

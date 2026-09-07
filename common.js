@@ -36,6 +36,27 @@ function fileToBase64(file, cb) {
   reader.readAsDataURL(file);
 }
 
+/* Một số trình duyệt trong app (TikTok, Facebook, Instagram, Zalo...)
+   chặn autoplay video ở lần tải đầu tiên dù đã có muted+autoplay+playsinline.
+   Hàm này thử play() ngay; nếu bị chặn, sẽ tự phát lại ngay khi người dùng
+   chạm/bấm vào màn hình lần đầu tiên (chỉ đăng ký 1 lần cho mỗi videoEl). */
+function playVideoWithFallback(videoEl) {
+  const p = videoEl.play();
+  if (p && typeof p.catch === "function") {
+    p.catch(() => {
+      if (videoEl.dataset.fallbackBound) return;
+      videoEl.dataset.fallbackBound = "1";
+      const resume = () => {
+        videoEl.play().catch(() => {});
+        window.removeEventListener("touchstart", resume);
+        window.removeEventListener("click", resume);
+      };
+      window.addEventListener("touchstart", resume, { once: true, passive: true });
+      window.addEventListener("click", resume, { once: true });
+    });
+  }
+}
+
 /* videoEl (tuỳ chọn) là thẻ <video id="stageBgVideo"> nằm trong .stage,
    dùng để phát hoạt ảnh nền khi state.stageBgType === "video". */
 function applyStageBackground(stage, bgColorInput, state, videoEl) {
@@ -55,7 +76,7 @@ function applyStageBackground(stage, bgColorInput, state, videoEl) {
         videoEl.src = state.stageBgVideo;
         videoEl.dataset.src = state.stageBgVideo;
       }
-      videoEl.play().catch(() => {});
+      playVideoWithFallback(videoEl);
     } else if (videoEl.dataset.src) {
       videoEl.pause();
       videoEl.removeAttribute("src");

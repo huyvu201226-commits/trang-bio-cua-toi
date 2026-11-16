@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Chuyển dữ liệu từ trang cũ</title>
+<style>
+  body{margin:0;padding:20px;background:#14121F;color:#F7F5FF;font:15px/1.5 system-ui,sans-serif;}
+  .box{max-width:460px;margin:0 auto;}
+  h1{font-size:20px;margin:0 0 6px;}
+  p{color:#8D8AA0;margin:0 0 14px;font-size:13.5px;}
+  fieldset{border:1px solid rgba(247,245,255,.14);border-radius:12px;margin:0 0 14px;padding:12px 14px;}
+  legend{font-size:13px;color:#E8B94A;padding:0 6px;}
+  input{width:100%;box-sizing:border-box;margin:5px 0;padding:10px 12px;font-size:16px;border-radius:10px;
+    border:1px solid rgba(247,245,255,.16);background:rgba(20,18,31,.6);color:#F7F5FF;}
+  button{width:100%;padding:12px;font-size:15px;font-weight:600;border:0;border-radius:12px;background:#6C5CE0;color:#fff;cursor:pointer;}
+  button:disabled{opacity:.5;}
+  #log{margin-top:16px;padding:12px;border-radius:12px;background:rgba(247,245,255,.05);
+    font:12.5px/1.6 ui-monospace,monospace;white-space:pre-wrap;min-height:60px;}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Chuyển dữ liệu từ trang cũ</h1>
+  <p>Chép nội dung trang bio, cấu hình đánh giá, bình luận (và danh sách chặn) từ project cũ <b>trang-bio-cua-toi</b> sang project mới <b>bio-j-hush</b>. Dùng xong hãy xoá file này.</p>
+
+  <fieldset>
+    <legend>Bắt buộc — admin của project MỚI (bio-j-hush)</legend>
+    <input type="email" id="newEmail" placeholder="Email admin mới" autocomplete="username">
+    <input type="password" id="newPass" placeholder="Mật khẩu" autocomplete="current-password">
+  </fieldset>
+
+  <fieldset>
+    <legend>Tuỳ chọn — admin của project CŨ (để chép danh sách chặn)</legend>
+    <input type="email" id="oldEmail" placeholder="Email admin cũ (có thể bỏ trống)">
+    <input type="password" id="oldPass" placeholder="Mật khẩu cũ">
+  </fieldset>
+
+  <button id="go">Bắt đầu chuyển</button>
+  <div id="log"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script>
+const OLD_CFG = {
+  apiKey: "AIzaSyDYvwIPea1bMCqpaBa20sol6RB8nQga_sg",
+  authDomain: "trang-bio-cua-toi.firebaseapp.com",
+  projectId: "trang-bio-cua-toi",
+  storageBucket: "trang-bio-cua-toi.firebasestorage.app",
+  messagingSenderId: "477154277734",
+  appId: "1:477154277734:web:691c6783141a4ec27db0a7"
+};
+const NEW_CFG = {
+  apiKey: "AIzaSyBym_HqQtU_otKkJCyjW-Yv3FFe6HeTM2A",
+  authDomain: "bio-j-hush.firebaseapp.com",
+  projectId: "bio-j-hush",
+  storageBucket: "bio-j-hush.firebasestorage.app",
+  messagingSenderId: "515898505309",
+  appId: "1:515898505309:web:050d44d7030d0533a6b5b4"
+};
+
+const oldApp = firebase.initializeApp(OLD_CFG, "old");
+const newApp = firebase.initializeApp(NEW_CFG, "new");
+const oldDb = oldApp.firestore(), newDb = newApp.firestore();
+const $ = (id) => document.getElementById(id);
+const logEl = $("log");
+const log = (t) => { logEl.textContent += t + "\n"; };
+
+async function run() {
+  logEl.textContent = "";
+  const email = $("newEmail").value.trim(), pass = $("newPass").value;
+  if (!email || !pass) { log("❌ Nhập email + mật khẩu admin của project MỚI."); return; }
+
+  log("→ Đăng nhập project mới…");
+  await newApp.auth().signInWithEmailAndPassword(email, pass);
+  log("✔ Đã đăng nhập.");
+
+  // 1) Toàn bộ tài liệu trong "site": data, reviewConfig, mood1..5
+  log("→ Chép nội dung trang (site)…");
+  const siteSnap = await oldDb.collection("site").get();
+  let n = 0;
+  for (const d of siteSnap.docs) {
+    if (d.id === "__probe") continue;
+    await newDb.collection("site").doc(d.id).set(d.data());
+    n++; log("   ✔ site/" + d.id);
+  }
+  if (!n) log("   (không thấy dữ liệu — project cũ có thể đã xoá hoặc khoá đọc)");
+
+  // 2) Bình luận: tạo hợp lệ theo rules rồi cập nhật lại thời gian + phản hồi gốc
+  log("→ Chép bình luận (reviews)…");
+  const rvSnap = await oldDb.collection("reviews").get();
+  let ok = 0, skip = 0, fail = 0;
+  for (const d of rvSnap.docs) {
+    try {
+      const o = d.data(), ref = newDb.collection("reviews").doc(d.id);
+      if ((await ref.get()).exists) { skip++; continue; }
+      await ref.set({
+        name: String(o.name || "").slice(0, 40) || "Khách",
+        stars: Math.min(5, Math.max(1, parseInt(o.stars, 10) || 5)),
+        text: String(o.text || "").slice(0, 500),
+        reply: "",
+        ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      const fix = { reply: o.reply || "" };
+      if (o.ts) fix.ts = o.ts;
+      await ref.update(fix);
+      ok++;
+    } catch (e) { fail++; log("   ✖ " + d.id + ": " + e.message); }
+  }
+  log("   ✔ " + ok + " bình luận mới, " + skip + " đã có sẵn, " + fail + " lỗi");
+
+  // 3) Danh sách chặn — cần đăng nhập admin project cũ
+  const oe = $("oldEmail").value.trim(), op = $("oldPass").value;
+  if (oe && op) {
+    try {
+      log("→ Chép danh sách chặn (blocked)…");
+      await oldApp.auth().signInWithEmailAndPassword(oe, op);
+      const bl = await oldDb.collection("blocked").get();
+      for (const d of bl.docs) await newDb.collection("blocked").doc(d.id).set(d.data());
+      log("   ✔ " + bl.size + " thiết bị bị chặn");
+    } catch (e) { log("   ✖ blocked: " + e.message); }
+  } else {
+    log("→ Bỏ qua danh sách chặn (không nhập tài khoản cũ).");
+  }
+
+  log("\n🎉 Xong. Mở index.html để kiểm tra, rồi XOÁ file migrate.html.");
+}
+
+$("go").addEventListener("click", async () => {
+  $("go").disabled = true;
+  try { await run(); }
+  catch (e) { log("❌ " + (e.code || "") + " " + e.message); }
+  $("go").disabled = false;
+});
+</script>
+</body>
+</html>
